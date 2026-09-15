@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnóstico Integral de Cobranza | Jurídico EQC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --orange:#ff4f1f;
+      --orange-soft:#fff0e8;
+      --ink:#111827;
+      --muted:#667085;
+      --line:#e5e7eb;
+      --navy:#0f172a;
+      --blue:#1d4ed8;
+      --teal:#0f766e;
+      --green:#16a34a;
+      --amber:#d97706;
+      --red:#dc2626;
+      --soft:#f6f7fb;
+      --violet:#6d28d9;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Roboto',system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--soft);color:var(--ink)}
+    .hero{background:
+      radial-gradient(circle at 12% 16%, rgba(255,79,31,.32), transparent 30%),
+      radial-gradient(circle at 85% 8%, rgba(15,118,110,.28), transparent 28%),
+      radial-gradient(circle at 60% 95%, rgba(29,78,216,.22), transparent 34%),
+      linear-gradient(135deg,#0b1220 0%,#111827 47%,#172033 100%);}
+    .glass{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(16px)}
+    .card{background:#fff;border:1px solid var(--line);box-shadow:0 22px 60px rgba(17,24,39,.08)}
+    .card-soft{background:linear-gradient(180deg,#ffffff,#fbfbfd);border:1px solid var(--line)}
+    .eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.16em;font-weight:900;color:var(--orange)}
+    .section-title{letter-spacing:-.045em;line-height:.98}
+    .metric{font-size:2.75rem;font-weight:900;letter-spacing:-.07em;line-height:1}
+    .big-metric{font-size:4.2rem;font-weight:900;letter-spacing:-.08em;line-height:.9}
+    .sticky-nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(229,231,235,.9)}
+    .nav-link{font-size:.84rem;font-weight:800;color:#475467;transition:.2s;white-space:nowrap}
+    .nav-link:hover{color:var(--orange)}
+    .pill{display:inline-flex;align-items:center;gap:.45rem;border:1px solid var(--line);background:#fff;border-radius:999px;padding:.45rem .75rem;font-size:.8rem;color:#475467;font-weight:800}
+    .dark-pill{display:inline-flex;align-items:center;gap:.45rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);border-radius:999px;padding:.5rem .85rem;font-size:.82rem;color:rgba(255,255,255,.78);font-weight:800}
+    .risk-bar{height:10px;border-radius:999px;background:#edf0f5;overflow:hidden}.risk-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--orange),#f59e0b)}
+    .quote{border-left:5px solid var(--orange);background:var(--orange-soft)}
+    .table-wrap{overflow-x:auto}
+    table{border-collapse:separate;border-spacing:0;width:100%}
+    th{background:#111827;color:#fff;text-align:left;font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;padding:14px 16px;white-space:nowrap}
+    td{padding:14px 16px;border-bottom:1px solid #edf0f5;color:#374151;vertical-align:top}
+    tr:last-child td{border-bottom:0}
+    .chip{display:inline-flex;align-items:center;border-radius:999px;padding:.28rem .65rem;font-weight:900;font-size:.76rem;background:#f3f4f6;color:#111827;white-space:nowrap}
+    .chip-red{background:#fef2f2;color:#991b1b}.chip-amber{background:#fffbeb;color:#92400e}.chip-green{background:#ecfdf5;color:#065f46}.chip-blue{background:#eff6ff;color:#1e3a8a}.chip-orange{background:#fff0e8;color:#9a3412}.chip-violet{background:#f5f3ff;color:#5b21b6}
+    .diag-grid{background-image:linear-gradient(rgba(17,24,39,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(17,24,39,.045) 1px,transparent 1px);background-size:24px 24px}
+    .flow-step{position:relative}.flow-step:after{content:"";position:absolute;left:23px;top:54px;width:2px;height:calc(100% - 38px);background:#e5e7eb}.flow-step:last-child:after{display:none}.dot{width:48px;height:48px;border-radius:18px;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 0 0 8px var(--orange-soft)}
+    .tab.active{background:#111827;color:#fff;border-color:#111827}.panel{display:none}.panel.active{display:block;animation:fade .24s ease-out}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    input[type=range]{accent-color:var(--orange)}
+    .formula{font-family:Georgia, 'Times New Roman', serif;background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:20px;color:#0f172a;overflow-x:auto}
+    .matrix-cell{border-radius:16px;padding:18px;border:1px solid var(--line);background:#fff}
+    .print-note{display:none}
+    @media print{.sticky-nav,.no-print{display:none}.print-note{display:block}.hero{background:#111827!important}.card,.card-soft{box-shadow:none}body{background:#fff}.break{page-break-before:always}}
+  </style>
+</head>
+<body>
+  <header class="hero text-white">
+    <nav class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-white text-[#ff4f1f] flex items-center justify-center font-black">CX</div>
+        <div>
+          <p class="text-xs uppercase tracking-[.22em] text-white/55 font-black">Diagnóstico consultivo integral</p>
+          <h1 class="font-black leading-tight">Jurídico EQC</h1>
+        </div>
+      </div>
+      <div class="hidden lg:flex gap-2 flex-wrap justify-end">
+        <span class="dark-pill">Cobranza</span>
+        <span class="dark-pill">Outbound</span>
+        <span class="dark-pill">IA + trazabilidad</span>
+        <span class="dark-pill">Business case</span>
+      </div>
+    </nav>
+
+    <section class="max-w-7xl mx-auto px-6 pt-10 pb-20 grid lg:grid-cols-12 gap-10 items-center">
+      <div class="lg:col-span-7">
+        <p class="text-sm uppercase tracking-[.24em] text-white/55 font-black mb-5">Evolución del sistema de cobranza</p>
+        <h2 class="text-5xl md:text-7xl font-black section-title mb-7">De marcar más a <span class="text-[#ff4f1f]">contactar mejor</span>.</h2>
+        <p class="text-xl md:text-2xl text-white/78 leading-relaxed max-w-3xl">
+          El reto de EQC no es únicamente digitalizar canales. Es convertir una operación intensiva en intentos, minutos y trabajo manual en una operación medible, trazable y optimizada por resultado por intento.
+        </p>
+        <div class="quote mt-8 rounded-3xl p-6 text-[#111827] max-w-3xl">
+          <p class="text-2xl md:text-3xl font-black tracking-tight">La voz debe dejar de ser el canal automático para todo y convertirse en un recurso estratégico para los casos donde realmente genera valor.</p>
+          <p class="mt-3 text-sm text-gray-700">Casos sensibles, alto valor, negociación compleja, aclaraciones y recuperación prioritaria.</p>
+        </div>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#valor" class="bg-[#ff4f1f] hover:bg-[#e64518] transition text-white font-black px-6 py-3 rounded-2xl">Ver caso económico</a>
+          <a href="#roadmap" class="glass hover:bg-white/15 transition text-white font-black px-6 py-3 rounded-2xl">Ver roadmap</a>
+        </div>
+      </div>
+      <div class="lg:col-span-5">
+        <div class="glass rounded-[2rem] p-6">
+          <p class="text-sm uppercase tracking-[.18em] text-white/55 font-black mb-5">Señales de Discovery</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-3xl bg-white/10 p-5">
+              <div class="metric text-[#ffb39e]">2M</div>
+              <p class="text-sm text-white/65 mt-2">minutos de telefonía</p>
+            </div>
+            <div class="rounded-3xl bg-white/10 p-5">
+              <div class="metric text-[#ffb39e]">30%</div>
+              <p class="text-sm text-white/65 mt-2">tiempo hablado útil</p>
+            </div>
+            <div class="rounded-3xl bg-white/10 p-5">
+              <div class="metric text-[#ffb39e]">6M</div>
+              <p class="text-sm text-white/65 mt-2">registros en blaster</p>
+            </div>
+            <div class="rounded-3xl bg-white/10 p-5">
+              <div class="metric text-[#ffb39e]">0.012%</div>
+              <p class="text-sm text-white/65 mt-2">contacto efectivo reportado</p>
+            </div>
+          </div>
+          <div class="mt-5 rounded-3xl bg-white text-gray-900 p-5">
+            <p class="font-black text-lg">Lectura ejecutiva</p>
+            <p class="text-sm text-gray-600 mt-2 leading-relaxed">El volumen existe, pero la inteligencia de contacto, trazabilidad, tipificación, reportería y automatización son las palancas que pueden transformar costo operativo en recuperación medible.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <nav class="sticky-nav no-print">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex gap-5 overflow-x-auto">
+      <a class="nav-link" href="#tesis">Tesis</a>
+      <a class="nav-link" href="#discovery">Discovery</a>
+      <a class="nav-link" href="#cx">CX actual</a>
+      <a class="nav-link" href="#benchmark">Benchmark</a>
+      <a class="nav-link" href="#fts">FTS</a>
+      <a class="nav-link" href="#outbound">Eficiencia outbound</a>
+      <a class="nav-link" href="#valor">Caso económico</a>
+      <a class="nav-link" href="#genesys">Arquitectura Genesys</a>
+      <a class="nav-link" href="#roadmap">Roadmap</a>
+      <a class="nav-link" href="#escenario">Escenario objetivo</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="tesis" class="max-w-7xl mx-auto px-6 py-16">
+      <div class="grid lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-4">
+          <p class="eyebrow mb-3">Tesis consultiva</p>
+          <h2 class="text-4xl md:text-5xl font-black section-title">El problema no es llamar. Es llamar sin suficiente inteligencia.</h2>
+        </div>
+        <div class="lg:col-span-8 card rounded-[2rem] p-8">
+          <p class="text-xl text-gray-700 leading-relaxed">
+            EQC tiene una base operativa de cobranza y recuperación con experiencia humana. La oportunidad está en transformar esa capacidad en una operación gobernada por datos: priorizar contactos, controlar reintentos, automatizar lo repetitivo, medir resultados en tiempo real y reservar la voz para las interacciones donde realmente eleva la recuperación.
+          </p>
+          <div class="grid md:grid-cols-3 gap-4 mt-8">
+            <div class="card-soft rounded-3xl p-5">
+              <span class="chip chip-orange">Hoy</span>
+              <p class="font-black text-xl mt-4">Operación intensiva en esfuerzo</p>
+              <p class="text-gray-600 mt-2 text-sm">Minutos, cargas manuales, blaster, tipificación limitada y baja visibilidad.</p>
+            </div>
+            <div class="card-soft rounded-3xl p-5">
+              <span class="chip chip-blue">Transición</span>
+              <p class="font-black text-xl mt-4">Contactabilidad inteligente</p>
+              <p class="text-gray-600 mt-2 text-sm">Segmentación, score, retries controlados y deflexión digital.</p>
+            </div>
+            <div class="card-soft rounded-3xl p-5">
+              <span class="chip chip-green">Meta</span>
+              <p class="font-black text-xl mt-4">Recuperación medible</p>
+              <p class="text-gray-600 mt-2 text-sm">Más resultado por intento, trazabilidad y visibilidad para acreedores.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="discovery" class="bg-white border-y border-gray-200">
+      <div class="max-w-7xl mx-auto px-6 py-16">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+          <div>
+            <p class="eyebrow mb-3">Discovery EQC</p>
+            <h2 class="text-4xl md:text-5xl font-black section-title">Señales que cambian la conversación.</h2>
+            <p class="text-gray-600 mt-4 max-w-3xl">La estrategia debe dejar de presentarse como modernización genérica y enfocarse en eficiencia económica, control operativo, contactabilidad y trazabilidad.</p>
+          </div>
+          <div class="pill">Base: sesión de Discovery + diagnóstico CX</div>
+        </div>
+
+        <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-5">
+          <div class="card rounded-[2rem] p-6">
+            <p class="text-sm text-gray-500 font-bold">Telefonía mensual aproximada</p>
+            <div class="metric text-[#ff4f1f] mt-3">2M</div>
+            <p class="text-gray-600 mt-3 text-sm">El tamaño del consumo vuelve indispensable optimizar cada intento y cada minuto.</p>
+          </div>
+          <div class="card rounded-[2rem] p-6">
+            <p class="text-sm text-gray-500 font-bold">Tiempo hablado útil</p>
+            <div class="metric text-[#ff4f1f] mt-3">30%</div>
+            <p class="text-gray-600 mt-3 text-sm">La mayor parte del consumo no se convierte en conversación útil.</p>
+          </div>
+          <div class="card rounded-[2rem] p-6">
+            <p class="text-sm text-gray-500 font-bold">Base en blaster</p>
+            <div class="metric text-[#ff4f1f] mt-3">6M</div>
+            <p class="text-gray-600 mt-3 text-sm">El volumen exige priorización, depuración y segmentación por contactabilidad.</p>
+          </div>
+          <div class="card rounded-[2rem] p-6">
+            <p class="text-sm text-gray-500 font-bold">Evaluaciones de calidad</p>
+            <div class="metric text-[#ff4f1f] mt-3">102</div>
+            <p class="text-gray-600 mt-3 text-sm">Muestra mensual manual limitada para una operación de alto volumen.</p>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8 mt-10 items-stretch">
+          <div class="card rounded-[2rem] p-8">
+            <h3 class="text-2xl font-black mb-5">Dolores operativos identificados</h3>
+            <div class="space-y-4">
+              <div class="flex gap-4"><span class="chip chip-red">1</span><p class="text-gray-700"><b>Marcador obsoleto:</b> limita estrategia, medición y control de intentos.</p></div>
+              <div class="flex gap-4"><span class="chip chip-red">2</span><p class="text-gray-700"><b>Tipificación no confiable:</b> los datos posteriores a la llamada no ayudan a optimizar campañas.</p></div>
+              <div class="flex gap-4"><span class="chip chip-red">3</span><p class="text-gray-700"><b>Sin reportería ni monitoreo en tiempo real:</b> dificulta corregir campañas durante la operación.</p></div>
+              <div class="flex gap-4"><span class="chip chip-red">4</span><p class="text-gray-700"><b>Granjas de chips:</b> reducen control, trazabilidad y gobierno de la telefonía.</p></div>
+              <div class="flex gap-4"><span class="chip chip-red">5</span><p class="text-gray-700"><b>Cargas manuales:</b> incrementan fricción, riesgo de error y dependencia operativa.</p></div>
+            </div>
+          </div>
+          <div class="card rounded-[2rem] p-8">
+            <h3 class="text-2xl font-black mb-5">Lectura económica</h3>
+            <div class="h-64"><canvas id="minutesChart"></canvas></div>
+            <p class="text-gray-600 text-sm mt-5">La primera oportunidad no está en incrementar la marcación, sino en reducir el desperdicio operativo de minutos no conversacionales, mejorar la probabilidad de contacto efectivo y automatizar interacciones de bajo valor.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cx" class="max-w-7xl mx-auto px-6 py-16">
+      <div class="grid lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-4">
+          <p class="eyebrow mb-3">Diagnóstico CX</p>
+          <h2 class="text-4xl md:text-5xl font-black section-title">La cobranza no tiene todavía un journey digital completo para el deudor.</h2>
+          <p class="text-gray-600 mt-5">La operación permite contacto, pero no se observa una experiencia digital guiada para resolver dudas, negociar, prometer pago, descargar documentos o dar seguimiento sin gestor.</p>
+        </div>
+        <div class="lg:col-span-8 grid md:grid-cols-2 gap-5">
+          <div class="card rounded-[2rem] p-6">
+            <h3 class="font-black text-xl mb-4">Canales y capacidades visibles</h3>
+            <div class="space-y-3 text-sm">
+              <div class="flex justify-between gap-4"><span>Teléfono</span><span class="chip chip-green">Activo</span></div>
+              <div class="flex justify-between gap-4"><span>WhatsApp tradicional</span><span class="chip chip-amber">Manual</span></div>
+              <div class="flex justify-between gap-4"><span>Formulario web</span><span class="chip chip-amber">Básico</span></div>
+              <div class="flex justify-between gap-4"><span>Correo electrónico</span><span class="chip chip-green">Activo</span></div>
+              <div class="flex justify-between gap-4"><span>Webchat / chatbot</span><span class="chip chip-red">No visible</span></div>
+              <div class="flex justify-between gap-4"><span>Portal de deudor</span><span class="chip chip-red">No visible</span></div>
+              <div class="flex justify-between gap-4"><span>FAQ / Centro de ayuda</span><span class="chip chip-red">No visible</span></div>
+              <div class="flex justify-between gap-4"><span>Journey Analytics</span><span class="chip chip-red">No visible</span></div>
+            </div>
+          </div>
+          <div class="card rounded-[2rem] p-6">
+            <h3 class="font-black text-xl mb-4">Madurez estimada por capacidad</h3>
+            <div class="space-y-5">
+              <div><div class="flex justify-between text-sm font-bold"><span>Atención omnicanal</span><span>Media</span></div><div class="risk-bar mt-2"><span style="width:46%"></span></div></div>
+              <div><div class="flex justify-between text-sm font-bold"><span>Autoservicio</span><span>Bajo</span></div><div class="risk-bar mt-2"><span style="width:18%"></span></div></div>
+              <div><div class="flex justify-between text-sm font-bold"><span>Automatización</span><span>Bajo</span></div><div class="risk-bar mt-2"><span style="width:22%"></span></div></div>
+              <div><div class="flex justify-between text-sm font-bold"><span>Analítica / reportería</span><span>Bajo</span></div><div class="risk-bar mt-2"><span style="width:20%"></span></div></div>
+              <div><div class="flex justify-between text-sm font-bold"><span>IA conversacional</span><span>Inicial</span></div><div class="risk-bar mt-2"><span style="width:15%"></span></div></div>
+            </div>
+          </div>
+          <div class="md:col-span-2 card rounded-[2rem] p-6">
+            <h3 class="font-black text-xl mb-5">Journey actual vs journey recomendado</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Momento del deudor</th><th>Experiencia actual probable</th><th>Experiencia recomendada</th></tr></thead>
+                <tbody>
+                  <tr><td>Duda sobre saldo o referencia</td><td>Contacto humano por voz/WhatsApp</td><td>Autoservicio validado por WhatsApp, web o voicebot</td></tr>
+                  <tr><td>Recordatorio preventivo</td><td>Llamada o blaster</td><td>WhatsApp/SMS/email con seguimiento inteligente</td></tr>
+                  <tr><td>Promesa de pago</td><td>Gestión manual</td><td>Bot + validación + registro automático en CRM</td></tr>
+                  <tr><td>Convenio simple</td><td>Negociación manual</td><td>Flujo digital guiado con escalamiento si aplica</td></tr>
+                  <tr><td>Disputa, queja o caso sensible</td><td>Contacto humano</td><td>Humano prioritario con contexto completo y trazabilidad</td></tr>
+                  <tr><td>Confirmación o carta</td><td>Seguimiento manual</td><td>Portal/micrositio + envío automático + evidencia</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="benchmark" class="bg-[#0f172a] text-white">
+      <div class="max-w-7xl mx-auto px-6 py-16">
+        <div class="max-w-4xl mb-10">
+          <p class="eyebrow mb-3">Benchmark CX de cobranza</p>
+          <h2 class="text-4xl md:text-5xl font-black section-title">EQC tiene base operativa; el mercado ya comunica omnicanalidad, IA y autoservicio.</h2>
+          <p class="text-white/65 mt-5">Frente a Barrera Badillo, Corporativo Muñoz / MC y GABSSA, la oportunidad no está en negar la fortaleza de EQC, sino en hacer visible una cobranza más digital, trazable, responsable y medible.</p>
+        </div>
+        <div class="card rounded-[2rem] overflow-hidden text-gray-900">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Criterio CX</th><th>Jurídico EQC</th><th>Barrera Badillo</th><th>Corporativo Muñoz / MC</th><th>GABSSA</th></tr></thead>
+              <tbody>
+                <tr><td>Cobranza preventiva / vencida</td><td><span class="chip chip-green">Alto</span></td><td><span class="chip chip-green">Alto</span></td><td><span class="chip chip-green">Alto</span></td><td><span class="chip chip-green">Alto</span></td></tr>
+                <tr><td>Cobranza judicial / extrajudicial</td><td><span class="chip chip-blue">Medio-Alto</span></td><td><span class="chip chip-green">Alto</span></td><td><span class="chip chip-green">Alto</span></td><td><span class="chip chip-green">Alto</span></td></tr>
+                <tr><td>Canales digitales visibles</td><td><span class="chip chip-amber">Medio</span></td><td><span class="chip chip-amber">Medio</span></td><td><span class="chip chip-green">Alto</span></td><td><span class="chip chip-green">Alto</span></td></tr>
+                <tr><td>IA / automatización visible</td><td><span class="chip chip-amber">Medio</span></td><td><span class="chip chip-amber">Medio</span></td><td><span class="chip chip-green">Alto</span></td><td><span class="chip chip-green">Alto</span></td></tr>
+                <tr><td>Autoservicio para deudor</td><td><span class="chip chip-red">Bajo-Medio</span></td><td><span class="chip chip-amber">Medio</span></td><td><span class="chip chip-blue">Medio-Alto</span></td><td><span class="chip chip-blue">Medio-Alto</span></td></tr>
+                <tr><td>Experiencia omnicanal</td><td><span class="chip chip-amber">Medio</span></td><td><span class="chip chip-amber">Medio</span></td><td><span class="chip chip-green">Alto</span></td><td><span class="chip chip-green">Alto</span></td></tr>
+                <tr><td>Transparencia / quejas / orientación</td><td><span class="chip chip-amber">Medio</span></td><td><span class="chip chip-green">Alto</span></td><td><span class="chip chip-amber">Medio</span></td><td><span class="chip chip-amber">Medio</span></td></tr>
+                <tr><td><b>Madurez CX estimada</b></td><td><b>5.8 / 10</b></td><td><b>6.5 / 10</b></td><td><b>8.0 / 10</b></td><td><b>7.7 / 10</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-4 gap-5 mt-8">
+          <div class="glass rounded-3xl p-5"><p class="font-black">EQC</p><p class="text-white/65 text-sm mt-2">Debe convertir su tecnología declarada en una narrativa clara de cobranza responsable, trazable y digital.</p></div>
+          <div class="glass rounded-3xl p-5"><p class="font-black">Barrera</p><p class="text-white/65 text-sm mt-2">Gana en señales públicas de trayectoria, cobertura y atención/quejas.</p></div>
+          <div class="glass rounded-3xl p-5"><p class="font-black">MC</p><p class="text-white/65 text-sm mt-2">Gana en narrativa de contact center tecnológico, IA, automatización y escala.</p></div>
+          <div class="glass rounded-3xl p-5"><p class="font-black">GABSSA</p><p class="text-white/65 text-sm mt-2">Se percibe robusto en omnicanalidad, contact center, servicios legales y campo.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="fts" class="max-w-7xl mx-auto px-6 py-16">
+      <div class="max-w-4xl mb-10">
+        <p class="eyebrow mb-3">FTS</p>
+        <h2 class="text-4xl md:text-5xl font-black section-title">El síntoma visible es volumen; la causa raíz es falta de inteligencia operativa.</h2>
+      </div>
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="card rounded-[2rem] p-7">
+          <span class="chip chip-red">Lagging indicators</span>
+          <h3 class="font-black text-2xl mt-4">Lo que ya impacta</h3>
+          <ul class="mt-5 space-y-3 text-gray-700">
+            <li>Altos costos por intentos improductivos.</li>
+            <li>Baja proporción de conversación útil.</li>
+            <li>Escalabilidad ligada a más personas y más marcación.</li>
+            <li>Muestra de calidad manual insuficiente.</li>
+          </ul>
+        </div>
+        <div class="card rounded-[2rem] p-7">
+          <span class="chip chip-amber">Leaning indicators</span>
+          <h3 class="font-black text-2xl mt-4">Lo que anticipa deterioro</h3>
+          <ul class="mt-5 space-y-3 text-gray-700">
+            <li>Tipificación unreliable.</li>
+            <li>Ausencia de monitoreo en tiempo real.</li>
+            <li>Dependencia de cargas manuales.</li>
+            <li>Voz utilizada para casos simples y complejos por igual.</li>
+          </ul>
+        </div>
+        <div class="card rounded-[2rem] p-7">
+          <span class="chip chip-blue">Leading / root cause</span>
+          <h3 class="font-black text-2xl mt-4">Lo que debe corregirse</h3>
+          <ul class="mt-5 space-y-3 text-gray-700">
+            <li>No existe un baseline confiable de eficiencia por intento.</li>
+            <li>No hay contactability score ni priorización avanzada.</li>
+            <li>Falta orquestación omnicanal y deflexión digital.</li>
+            <li>La operación carece de trazabilidad end-to-end.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="outbound" class="bg-white border-y border-gray-200">
+      <div class="max-w-7xl mx-auto px-6 py-16">
+        <div class="grid lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-5">
+            <p class="eyebrow mb-3">Marco de eficiencia outbound</p>
+            <h2 class="text-4xl md:text-5xl font-black section-title">La cobranza debe optimizar resultado por intento, no volumen por volumen.</h2>
+            <p class="text-gray-600 mt-5">Cada intento puede modelarse como una decisión con costo, probabilidad de contacto, probabilidad de resultado y valor económico del caso.</p>
+            <div class="formula mt-6">
+              <p class="text-xl font-bold">E[V(i,c,k,t)] = P(contacto efectivo) × P(resultado positivo | contacto) × V(i) − C(k)</p>
+            </div>
+            <p class="text-gray-600 text-sm mt-4">Criterio de decisión: priorizar intentos con valor esperado positivo y reducir, posponer o mover a canal alterno aquellos con valor esperado bajo o negativo.</p>
+          </div>
+          <div class="lg:col-span-7">
+            <div class="grid md:grid-cols-2 gap-5">
+              <div class="card rounded-[2rem] p-6">
+                <h3 class="font-black text-xl mb-4">Rendimiento marginal decreciente</h3>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Intento</th><th>Valor marginal</th></tr></thead>
+                    <tbody>
+                      <tr><td>Primer intento</td><td><span class="chip chip-green">Alto</span></td></tr>
+                      <tr><td>Segundo en mejor horario</td><td><span class="chip chip-blue">Medio</span></td></tr>
+                      <tr><td>Tercer sin cambio de estrategia</td><td><span class="chip chip-amber">Bajo</span></td></tr>
+                      <tr><td>Cuarto o más repetitivo</td><td><span class="chip chip-red">Potencialmente negativo</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card rounded-[2rem] p-6">
+                <h3 class="font-black text-xl mb-4">Segmentación recomendada</h3>
+                <div class="space-y-3 text-sm">
+                  <div class="matrix-cell"><b>Alta contactabilidad:</b> voz prioritaria en mejor horario.</div>
+                  <div class="matrix-cell"><b>Media:</b> voz selectiva + canal digital.</div>
+                  <div class="matrix-cell"><b>Baja:</b> digital primero y menos retries.</div>
+                  <div class="matrix-cell"><b>Caso sensible:</b> contacto humano con menor automatización.</div>
+                </div>
+              </div>
+            </div>
+            <div class="card rounded-[2rem] p-6 mt-5">
+              <h3 class="font-black text-xl mb-4">KPIs de eficiencia que deben reemplazar la lectura basada solo en llamadas</h3>
+              <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-3">
+                <span class="pill">Contact Rate</span><span class="pill">Right Party Contact</span><span class="pill">Attempts per Contact</span><span class="pill">Conversion per Attempt</span><span class="pill">Cost per Effective Contact</span><span class="pill">Retry Yield</span><span class="pill">No Answer Saturation</span><span class="pill">Channel Deflection Rate</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card rounded-[2rem] p-8 mt-10">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+            <div>
+              <h3 class="text-3xl font-black section-title">Contactability Score</h3>
+              <p class="text-gray-600 mt-2">Una capa inicial de decisión para priorizar contactos antes de gastar intentos de voz.</p>
+            </div>
+            <span class="chip chip-violet">De heurística a modelo predictivo</span>
+          </div>
+          <div class="grid md:grid-cols-4 gap-4">
+            <div class="card-soft rounded-3xl p-5"><span class="chip chip-green">Alto</span><p class="font-black mt-4">Priorizar voz</p><p class="text-sm text-gray-600 mt-2">Mejor horario + agente.</p></div>
+            <div class="card-soft rounded-3xl p-5"><span class="chip chip-blue">Medio</span><p class="font-black mt-4">Voz selectiva</p><p class="text-sm text-gray-600 mt-2">Combinar con digital.</p></div>
+            <div class="card-soft rounded-3xl p-5"><span class="chip chip-amber">Bajo</span><p class="font-black mt-4">Digital primero</p><p class="text-sm text-gray-600 mt-2">Menos retries de voz.</p></div>
+            <div class="card-soft rounded-3xl p-5"><span class="chip chip-red">Muy bajo</span><p class="font-black mt-4">Pausar / depurar</p><p class="text-sm text-gray-600 mt-2">Estrategia asincrónica.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="valor" class="max-w-7xl mx-auto px-6 py-16">
+      <div class="grid lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-4">
+          <p class="eyebrow mb-3">Caso económico</p>
+          <h2 class="text-4xl md:text-5xl font-black section-title">El ROI debe empezar por los minutos improductivos.</h2>
+          <p class="text-gray-600 mt-5">Con 2 millones de minutos y solo 30% hablado útil, cualquier reducción controlada de improductividad puede liberar costo, capacidad y foco operativo.</p>
+        </div>
+        <div class="lg:col-span-8 card rounded-[2rem] p-8">
+          <div class="grid md:grid-cols-3 gap-5 mb-8">
+            <div class="card-soft rounded-3xl p-5"><p class="text-sm text-gray-500 font-bold">Minutos totales</p><div class="metric text-[#111827] mt-2">2,000,000</div></div>
+            <div class="card-soft rounded-3xl p-5"><p class="text-sm text-gray-500 font-bold">Hablados útiles</p><div class="metric text-[#16a34a] mt-2">600,000</div></div>
+            <div class="card-soft rounded-3xl p-5"><p class="text-sm text-gray-500 font-bold">No hablados / improductivos</p><div class="metric text-[#ff4f1f] mt-2">1,400,000</div></div>
+          </div>
+          <div class="bg-gray-50 border border-gray-200 rounded-[2rem] p-6 no-print">
+            <div class="grid md:grid-cols-3 gap-6 items-center">
+              <div class="md:col-span-2">
+                <label class="font-black text-lg">Escenario de reducción de minutos improductivos: <span id="reductionLabel" class="text-[#ff4f1f]">15%</span></label>
+                <input id="reductionRange" type="range" min="5" max="40" value="15" step="1" class="w-full mt-4">
+                <p class="text-sm text-gray-600 mt-2">Modelo ilustrativo para conversación ejecutiva. Debe validarse con costo por minuto, carrier, campañas, tasa de recuperación y datos reales de EQC.</p>
+              </div>
+              <div class="rounded-3xl bg-white border border-gray-200 p-5">
+                <p class="text-sm text-gray-500 font-bold">Minutos potencialmente evitables</p>
+                <div id="savedMinutes" class="metric text-[#ff4f1f] mt-2">210,000</div>
+                <p class="text-xs text-gray-500 mt-2">sobre 1.4M improductivos</p>
+              </div>
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-5 mt-6">
+            <div class="quote rounded-3xl p-6"><p class="font-black text-xl">No se busca reducir llamadas a ciegas.</p><p class="text-gray-700 mt-2">Se busca reducir intentos de bajo valor marginal y mantener o mejorar recuperación.</p></div>
+            <div class="quote rounded-3xl p-6"><p class="font-black text-xl">Cada punto de eficiencia cuenta.</p><p class="text-gray-700 mt-2">La oportunidad escala por el volumen: minutos, registros, intentos y promesas.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="genesys" class="bg-white border-y border-gray-200">
+      <div class="max-w-7xl mx-auto px-6 py-16">
+        <div class="max-w-4xl mb-10">
+          <p class="eyebrow mb-3">Arquitectura de evolución</p>
+          <h2 class="text-4xl md:text-5xl font-black section-title">La solución no es una sola capacidad: es una operación de cobranza conectada.</h2>
+          <p class="text-gray-600 mt-5">La propuesta debe integrar telefonía, datos, CRM, outbound, canales digitales, calidad y analítica para cerrar el ciclo entre intento, contacto, resultado y aprendizaje.</p>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-8">
+          <div class="card rounded-[2rem] p-8">
+            <h3 class="text-2xl font-black mb-5">Dolor EQC → Capacidad habilitadora</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Dolor</th><th>Respuesta tecnológica</th></tr></thead>
+                <tbody>
+                  <tr><td>Marcador obsoleto</td><td>Outbound campaigns, predictive/progressive dialing y controles de intento.</td></tr>
+                  <tr><td>Tipificación unreliable</td><td>Wrap-up codes estructurados, ACW gobernado e integración CRM.</td></tr>
+                  <tr><td>Sin reportería</td><td>Dashboards operativos, performance por campaña y resultados por intento.</td></tr>
+                  <tr><td>Sin monitoreo real-time</td><td>Supervisión en vivo, alertas y visibilidad de colas/campañas.</td></tr>
+                  <tr><td>Granjas de chips</td><td>Arquitectura de telefonía y carrier gobernada, con trazabilidad.</td></tr>
+                  <tr><td>Cargas manuales</td><td>Integración CRM, listas dinámicas y automatización de campañas.</td></tr>
+                  <tr><td>Calidad manual limitada</td><td>Quality automation, Speech/Text Analytics y muestras ampliadas.</td></tr>
+                  <tr><td>Todo por voz</td><td>WhatsApp, SMS, email, bots, autoservicio y deflexión inteligente.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card rounded-[2rem] p-8 diag-grid">
+            <h3 class="text-2xl font-black mb-6">Modelo objetivo</h3>
+            <div class="space-y-6">
+              <div class="flow-step flex gap-5"><div class="dot">1</div><div><p class="font-black text-xl">Datos y CRM</p><p class="text-gray-600">Cartera, historial, outcomes, valor del caso y contacto único.</p></div></div>
+              <div class="flow-step flex gap-5"><div class="dot">2</div><div><p class="font-black text-xl">Score + segmentación</p><p class="text-gray-600">Probabilidad de contacto, urgencia, sensibilidad y valor esperado.</p></div></div>
+              <div class="flow-step flex gap-5"><div class="dot">3</div><div><p class="font-black text-xl">Orquestación omnicanal</p><p class="text-gray-600">Voz, WhatsApp, SMS, email, bot y agente según mejor siguiente acción.</p></div></div>
+              <div class="flow-step flex gap-5"><div class="dot">4</div><div><p class="font-black text-xl">Resultado + trazabilidad</p><p class="text-gray-600">Promesa, pago, convenio, no respuesta, queja o escalamiento documentado.</p></div></div>
+              <div class="flow-step flex gap-5"><div class="dot">5</div><div><p class="font-black text-xl">Analítica y mejora continua</p><p class="text-gray-600">Retroalimentación a campañas, calidad, scripts, canales y modelos.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap" class="max-w-7xl mx-auto px-6 py-16">
+      <div class="max-w-4xl mb-10">
+        <p class="eyebrow mb-3">Roadmap recomendado</p>
+        <h2 class="text-4xl md:text-5xl font-black section-title">Evolución por fases para reducir riesgo y evidenciar impacto.</h2>
+      </div>
+      <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-5">
+        <div class="card rounded-[2rem] p-6">
+          <span class="chip chip-orange">Fase 1</span>
+          <h3 class="font-black text-2xl mt-4">Baseline y gobierno</h3>
+          <ul class="text-sm text-gray-600 mt-4 space-y-2">
+            <li>Inventario de campañas y registros.</li>
+            <li>Contact ID único.</li>
+            <li>Outcomes confiables.</li>
+            <li>Reporte de minutos útiles vs improductivos.</li>
+            <li>Monitoreo operativo.</li>
+          </ul>
+        </div>
+        <div class="card rounded-[2rem] p-6">
+          <span class="chip chip-blue">Fase 2</span>
+          <h3 class="font-black text-2xl mt-4">Outbound inteligente</h3>
+          <ul class="text-sm text-gray-600 mt-4 space-y-2">
+            <li>Attempt controls.</li>
+            <li>Ventanas de contacto.</li>
+            <li>Segmentación por valor y contactabilidad.</li>
+            <li>Priorización de voz.</li>
+            <li>Integración con CRM.</li>
+          </ul>
+        </div>
+        <div class="card rounded-[2rem] p-6">
+          <span class="chip chip-green">Fase 3</span>
+          <h3 class="font-black text-2xl mt-4">Deflexión digital</h3>
+          <ul class="text-sm text-gray-600 mt-4 space-y-2">
+            <li>WhatsApp conversacional.</li>
+            <li>SMS/email inteligentes.</li>
+            <li>Bot de promesa de pago.</li>
+            <li>FAQ y autoservicio.</li>
+            <li>Escalamiento a agente con contexto.</li>
+          </ul>
+        </div>
+        <div class="card rounded-[2rem] p-6">
+          <span class="chip chip-violet">Fase 4</span>
+          <h3 class="font-black text-2xl mt-4">IA, calidad y optimización</h3>
+          <ul class="text-sm text-gray-600 mt-4 space-y-2">
+            <li>Speech/Text Analytics.</li>
+            <li>Quality Automation.</li>
+            <li>Agent Copilot.</li>
+            <li>Contactability Score predictivo.</li>
+            <li>Dashboard para acreedores.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="escenario" class="bg-[#0f172a] text-white">
+      <div class="max-w-7xl mx-auto px-6 py-16">
+        <div class="grid lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-4">
+            <p class="eyebrow mb-3">Escenario objetivo</p>
+            <h2 class="text-4xl md:text-5xl font-black section-title">De 6 millones de registros a una estrategia inteligente de recuperación.</h2>
+            <p class="text-white/65 mt-5">El enfoque debe mostrar impacto económico y operativo, no solo capacidades tecnológicas.</p>
+          </div>
+          <div class="lg:col-span-8 grid md:grid-cols-2 gap-5">
+            <div class="glass rounded-3xl p-6"><span class="chip chip-orange">1</span><p class="font-black text-xl mt-4">Carga de cartera</p><p class="text-white/65 mt-2 text-sm">Desde CRM o archivo con reglas de validación y contacto único.</p></div>
+            <div class="glass rounded-3xl p-6"><span class="chip chip-orange">2</span><p class="font-black text-xl mt-4">Score de contactabilidad</p><p class="text-white/65 mt-2 text-sm">Segmentación por probabilidad, valor, mora y outcomes previos.</p></div>
+            <div class="glass rounded-3xl p-6"><span class="chip chip-orange">3</span><p class="font-black text-xl mt-4">Estrategia de canal</p><p class="text-white/65 mt-2 text-sm">Voz para alto valor; WhatsApp/SMS/email para baja contactabilidad o recordatorios.</p></div>
+            <div class="glass rounded-3xl p-6"><span class="chip chip-orange">4</span><p class="font-black text-xl mt-4">Bot + agente</p><p class="text-white/65 mt-2 text-sm">Promesa de pago, dudas simples y escalamiento con contexto completo.</p></div>
+            <div class="glass rounded-3xl p-6"><span class="chip chip-orange">5</span><p class="font-black text-xl mt-4">Tipificación confiable</p><p class="text-white/65 mt-2 text-sm">ACW estructurado, outcomes limpios y actualización de CRM.</p></div>
+            <div class="glass rounded-3xl p-6"><span class="chip chip-orange">6</span><p class="font-black text-xl mt-4">Dashboard económico</p><p class="text-white/65 mt-2 text-sm">Contact rate, RPC, promesas, costo por contacto efectivo, retries y deflexión.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-6 py-16">
+      <div class="card rounded-[2rem] p-8 md:p-10 bg-[#111827] text-white">
+        <div class="grid lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-8">
+            <p class="eyebrow mb-3">Conclusión</p>
+            <h2 class="text-4xl md:text-5xl font-black section-title">La cobranza moderna no se trata de llamar menos. Se trata de contactar mejor.</h2>
+            <p class="text-white/70 mt-5 text-lg leading-relaxed">EQC puede preservar su fortaleza humana y enfocarla en los casos donde más valor genera. La automatización, la omnicanalidad y la analítica no reemplazan la experiencia de cobranza; la amplifican, reduciendo intentos improductivos y dando trazabilidad al resultado.</p>
+          </div>
+          <div class="lg:col-span-4">
+            <div class="bg-white rounded-[2rem] p-6 text-gray-900">
+              <p class="font-black text-xl">Reposicionamiento sugerido</p>
+              <p class="text-gray-700 mt-3">Cobranza responsable y digital: contacto oportuno, negociación clara, trazabilidad completa y experiencia respetuosa para el acreditado, sin perder eficiencia de recuperación.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-6 leading-relaxed">Este diagnóstico es una lectura consultiva preliminar construida con la información disponible de Discovery, observación CX y marco de optimización outbound. Las cifras, supuestos y estimaciones deben validarse con datos operativos reales de EQC antes de formalizar un caso económico final.</p>
+    </section>
+  </main>
+
+  <script>
+    const ctxMinutes = document.getElementById('minutesChart');
+    if(ctxMinutes){
+      new Chart(ctxMinutes, {
+        type: 'doughnut',
+        data: {
+          labels: ['Minutos hablados útiles', 'Minutos no hablados / improductivos'],
+          datasets: [{ data: [600000, 1400000], backgroundColor: ['#16a34a','#ff4f1f'], borderWidth: 0 }]
+        },
+        options: {
+          plugins: { legend: { position: 'bottom', labels:{ usePointStyle:true, padding:16 } } },
+          cutout: '68%',
+          responsive:true,
+          maintainAspectRatio:false
+        }
+      });
+    }
+
+    const range = document.getElementById('reductionRange');
+    const label = document.getElementById('reductionLabel');
+    const saved = document.getElementById('savedMinutes');
+    function updateCalc(){
+      if(!range) return;
+      const pct = Number(range.value);
+      const minutes = Math.round(1400000 * pct / 100);
+      label.textContent = pct + '%';
+      saved.textContent = minutes.toLocaleString('es-MX');
+    }
+    if(range){ range.addEventListener('input', updateCalc); updateCalc(); }
+  </script>
+</body>
+</html>
